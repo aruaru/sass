@@ -1,0 +1,157 @@
+@charset 'utf-8';
+@import 'sprite/icon-sprite';
+@import 'sprite/emo-sprite';
+@import 'sprite/bullet-sprite';
+.test{transform:translate(0,0)}
+/* 일반이미지 */
+.icon {
+	display:inline-block;
+	box-sizing: border-box;
+	display:flex;
+}
+.icon-sprite1 {
+  //@include sprite($icon-sprite1); //일반
+  @include retina-sprite($icon-sprite1-group); //레티나대응
+}
+
+// html사용예시 class="icon icon-sprite1"
+
+
+/*기본믹스인 .클래스{}*/
+// @include sprites ($bullet-normal-sprites); //일반
+.bullet {margin:10px}
+@include retina-sprites ($bullet-groups); //레티나 대응
+
+// html사용예시 class="bullet bullet-sprite1"
+
+
+/**
+* 원본이미지의 사이즈를 100이라 할때
+* 퍼센트값을 조정하여 원하는 사이즈로 출력 
+*/
+@mixin sprites-scale($sprites, $percent: 100) {
+  @each $sprite in $sprites {
+	$sprite-offset-x: nth($sprite, 3);
+	$sprite-offset-y: nth($sprite, 4);
+	$sprite-width: nth($sprite, 5);
+	$sprite-height: nth($sprite, 6);
+	$sprite-total-width: nth($sprite, 7);
+	$sprite-total-height: nth($sprite, 8);
+	$sprite-image: nth($sprite, 9);
+	$sprite-name: nth($sprite, 10);
+	$scale: $percent/100;
+
+    // 클래스명(.bullet-sprite1-50)
+    .#{$sprite-name}-#{$percent} {
+		background-image: url(#{$sprite-image});
+		background-position: $sprite-offset-x * $scale $sprite-offset-y * $scale;
+		background-size: $sprite-total-width * $scale $sprite-total-height * $scale;
+		width: $sprite-width * $scale;
+		height: $sprite-height * $scale;
+		background-repeat: no-repeat;
+		overflow: hidden;
+		display: block;
+    }
+  }
+}
+// sass 예시
+@include sprites-scale($bullet-normal-sprites, 50); // ex) 40px -> 20px
+@include sprites-scale($bullet-normal-sprites, 100); // ex) 40px -> 40px
+
+// css output
+// .bullet-sprite1-50 {
+//   background-image: url(./img/sprite/bullet.png);
+//   background-position: 0px -12.5px;
+//   background-size: 12.5px 25px;
+//   width: 12.5px;
+//   height: 12.5px;
+//   background-repeat: no-repeat;
+//   overflow: hidden;
+//   display: block;
+// }
+
+// .bullet-sprite1-100 {
+//   background-image: url(./img/sprite/bullet.png);
+//   background-position: 0px 0px;
+//   background-size: 25px 50px;
+//   width: 25px;
+//   height: 25px;
+//   background-repeat: no-repeat;
+//   overflow: hidden;
+//   display: block;
+// }
+
+// html사용예시
+// <div class="bullet-sprite1"></div>
+// <div class="bullet-sprite2"></div>
+
+
+/**
+* 원본이미지의 사이즈를 100이라 할때
+* 퍼센트값을 조정하여 원하는 사이즈로 출력 
+* (+ 레티나 대응까지)
+*/
+@mixin retina-sprites-scale($retina-groups, $percent: 100) {
+	@each $retina-group in $retina-groups {
+		$scale: $percent/100;
+		$dpi: 1;
+		$sprite-name: nth($retina-group, 1);
+		$normal-sprite: nth($retina-group, 2);
+		$retina-sprite: nth($retina-group, 3);
+		$sprite-offset-x: nth($normal-sprite, 3) * $scale;
+		$sprite-offset-y: nth($normal-sprite, 4) * $scale;
+		$sprite-width: nth($normal-sprite, 5) * $scale;
+		$sprite-height: nth($normal-sprite, 6) * $scale;
+		$sprite-total-width: nth($normal-sprite, 7) * $scale;
+		$sprite-total-height: nth($normal-sprite, 8) * $scale;
+		$retina-total-width: nth($retina-sprite, 7) * $scale;
+		$retina-total-height: nth($retina-sprite, 8) * $scale;
+
+		// 클래스명(.emo-a01-r100)
+		.#{$sprite-name}-r#{$percent} {
+			@include sprite-image($normal-sprite);
+			background-position: $sprite-offset-x $sprite-offset-y;
+			background-size: $sprite-total-width $sprite-total-height;
+			width: $sprite-width;
+			height: $sprite-height;
+			background-repeat: no-repeat;
+			overflow: hidden;
+			display: inline-block;
+
+			@media (-webkit-min-device-pixel-ratio: 2),
+			       (min-resolution: 192dpi) {
+				@include sprite-image($retina-sprite);				
+			    background-size: $retina-total-width/2 $retina-total-height/2;
+			}
+		}
+	}
+}
+
+// sass 사용예시
+@include retina-sprites-scale($emo-groups, 60);
+@include retina-sprites-scale($emo-groups, 80);
+@include retina-sprites-scale($emo-groups, 100);
+
+// css output
+// .emo-a01-r60 {
+//   background-image: url(../img/sprite/emo.png);
+//   background-position: 0px 0px;
+//   background-size: 120px 120px;
+//   width: 60px;
+//   height: 60px;
+//   background-repeat: no-repeat;
+//   overflow: hidden;
+//   display: inline-block;
+// }
+
+// @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+//   .emo-a01-r60 {
+//     background-image: url(../img/sprite/emo@2x.png);
+//     background-size: 120px 120px;
+//   }
+// }
+
+// html사용예시
+// <div class="emo-a01-r60"></div>
+// <div class="emo-a02-r60"></div>
+// <div class="emo-a03-r60"></div>
